@@ -27,6 +27,10 @@ EST = 1
 SUD = 2
 OUEST = 3
 
+# Nombre de pions par joueur
+NB_PIONS = 8
+
+
 
 # VARIABLES GLOBALES du Jeu
 
@@ -53,10 +57,22 @@ posInitPionsNoirs = ( ( 3 , 1 ) , ( 2 , 6 ) , ( 2 , 2 ) , ( 3 , 5 ) , ( 3 , 3 ) 
 # Position initiale des pions blancs (tuple de tuples)
 posInitPionsBlancs = ( ( 7 , 7 ) , ( 8 , 2 ) , ( 8 , 6 ) , ( 7 , 3 ) , ( 7 , 5 ) , ( 9 , 1 ) , ( 9 , 7 ) , ( 7 , 1 ) )
 
+
+posInitPions = {
+	'noir' : ( ( 3 , 1 ) , ( 2 , 6 ) , ( 2 , 2 ) , ( 3 , 5 ) , ( 3 , 3 ) , ( 1 , 7 ) , ( 1 , 1 ) , ( 3 , 7 ) ) ,
+	'blanc' : ( ( 7 , 7 ) , ( 8 , 2 ) , ( 8 , 6 ) , ( 7 , 3 ) , ( 7 , 5 ) , ( 9 , 1 ) , ( 9 , 7 ) , ( 7 , 1 ) )
+}
+
+
 # Position des pions noirs
 
 posPionsNoirs = []
 posPionsBlancs = []
+
+posPions = {
+	'noir' : [] ,
+	'blanc' : []
+}
 	
 
 # VARIABLES GLOBALES de l'Interface Graphique Utilisateur (GUI)
@@ -67,10 +83,22 @@ pionsBlancs = [ None , None , None , None , None , None , None , None ]
 # Pions noirs
 pionsNoirs = [ None , None , None , None , None , None , None , None ]
 
+# Pions
+
+pionsGUI = {
+	'noir' : [ None , None , None , None , None , None , None , None ] ,
+	'blanc' : [ None , None , None , None , None , None , None , None ]
+}
+
 # Bouton radio associé aux camps (couleurs)
 
 brNoir = None
 brBlanc = None
+
+brCouleurs = {
+	'blanc' : None ,
+	'noir' : None
+}
 
 # Variable associée au camp (couleur) qui doit jouer son tour
 svCouleur = None
@@ -94,10 +122,123 @@ btnOuest = None
 
 def selectionnerPion() :
 	pion = svPion.get()
-	couleur = svCouleur()
-	directionsOk = getDirectionsPossibles( couleur , pion )
-	activerDirectionsPossibles( directions )
+	couleur = svCouleur.get()
+	#directionsOk = getDirectionsPossibles( couleur , pion )
+	#activerDirectionsPossibles( directions )
 	
+def getCaseNord( ligne , colonne ) :
+	if ligne > 1 :
+		return ( ligne - 1 , colonne )
+	else :
+		return None
+
+
+def getCaseEst( ligne , colonne ) :
+	if colonne < NB_COLONNES :
+		return ( ligne , colonne + 1 )
+	else :
+		return None
+		
+		
+def getCaseSud( ligne , colonne ) :
+	if ligne < NB_LIGNES :
+		return ( ligne + 1 , colonne )
+	else :
+		return None
+		
+
+def getCaseOuest( ligne , colonne ) :
+	if colonne > 1 :
+		return ( ligne , colonne - 1 )
+	else :
+		return None
+
+		
+def estSurBord( ligne , colonne ) :
+	if ligne == 1 or ligne == NB_LIGNES or colonne == 1 or colonne == NB_COLONNES :
+		return True
+	else :
+		return False
+
+
+def estTerre( ligne , colonne ) :
+	if jungle[ ligne - 1 ][ colonne - 1 ] == TERRE :
+		return True
+	else :
+		return False
+
+		
+def estEau( ligne , colonne ) :
+	if jungle[ ligne - 1 ][ colonne - 1 ] == EAU :
+		return True
+	else :
+		return False
+
+
+def estPiege( ligne , colonne , couleur = None ) :
+	
+	if couleur == None :
+		if jungle[ ligne - 1 ][ colonne - 1 ] == PIEGE_BLANC or jungle[ ligne - 1 ][ colonne - 1 ] == PIEGE_NOIR :
+			return True
+		elif jungle[ ligne - 1 ][ colonne - 1 ] == PIEGE_BLANC and couleur == 'blanc' :
+			return True
+		elif jungle[ ligne - 1 ][ colonne - 1 ] == PIEGE_NOIR and couleur == 'noir' :
+			return True
+
+	return False
+		
+		
+def estTaniere( ligne , colonne , couleur = None ) :
+	if couleur == None :
+		if jungle[ ligne - 1 ][ colonne - 1 ] == TANIERE_BLANC or jungle[ ligne - 1 ][ colonne - 1 ] == TANIERE_NOIR :
+			return True
+		elif jungle[ ligne - 1 ][ colonne - 1 ] == TANIERE_BLANC and couleur == 'blanc' :
+			return True
+		elif jungle[ ligne - 1 ][ colonne - 1 ] == TANIERE_NOIR and couleur == 'noir' :
+			return True
+
+	return False
+
+
+def estBerge( ligne , colonne ) :
+	pos = getCaseNord( ligne , colonne )
+	if pos != None and estEau( pos[ 0 ] , pos[ 1 ] ) :
+		return True
+	
+	pos = getCaseEst( ligne , colonne )
+	if pos != None and estEau( pos[ 0 ] , pos[ 1 ] ) :
+		return True
+		
+	pos = getCaseSud( ligne , colonne )
+	if pos != None and estEau( pos[ 0 ] , pos[ 1 ] ) :
+		return True
+		
+	pos = getCaseOuest( ligne , colonne )
+	if pos != None and estEau( pos[ 0 ] , pos[ 1 ] ) :
+		return True
+		
+	return False
+	
+
+def getBergeOpposee( ligne , colonne ) :
+	
+	pos = getCaseNord( ligne , colonne )
+	if pos != None and estEau( pos[ 0 ] , pos[ 1 ] ) :
+		return ( pos[ 0 ] - LONGUEUR_ETANG , colonne )
+	
+	pos = getCaseEst( ligne , colonne )
+	if pos != None and estEau( pos[ 0 ] , pos[ 1 ] ) :
+		return ( ligne , pos[ 1 ] + LARGEUR_ETANG )
+		
+	pos = getCaseSud( ligne , colonne )
+	if pos != None and estEau( pos[ 0 ] , pos[ 1 ] ) :
+		return ( pos[ 0 ] + LONGUEUR_ETANG , colonne )
+		
+	pos = getCaseOuest( ligne , colonne )
+	if pos != None and estEau( pos[ 0 ] , pos[ 1 ] ) :
+		return ( ligne , pos[ 1 ] - LARGEUR_ETANG )
+		
+	return None
 
 
 def deplacerNord() :
@@ -138,6 +279,7 @@ def deplacerOuest() :
 
 
 def dessinerPion( pion , couleur ) :
+	'''
 	ind = pions.index( pion )
 	print( 'ind : ' , ind )
 	force = ind + 1
@@ -155,6 +297,22 @@ def dessinerPion( pion , couleur ) :
 		pionsNoirs[ ind ] = plateau.create_text( x , y , text = str( force ) , font = ( 'TkDefaultFont' , '30' , 'bold'  ) , fill = 'black' )
 	else :
 		pionsBlancs[ ind ] = plateau.create_text( x , y , text = str( force ) , font = ( 'TkDefaultFont' , '30' , 'bold'  ) , fill = 'white' )
+	'''
+
+	ind = pions.index( pion )
+	print( 'ind : ' , ind )
+	force = ind + 1
+	
+	ligne = posInitPions[ couleur ][ ind ][ 0 ]
+	colonne = posInitPions[ couleur ][ ind ][ 1 ]
+		
+	x = D * colonne - D + colonne + D // 2 + 1
+	y = D * ligne - D + ligne + D // 2 + 1
+	
+	if couleur == 'noir' :
+		pionsGUI[ 'noir' ][ ind ] = plateau.create_text( x , y , text = str( force ) , font = ( 'TkDefaultFont' , '30' , 'bold'  ) , fill = 'black' )
+	else :
+		pionsGUI[ 'blanc' ][ ind ] = plateau.create_text( x , y , text = str( force ) , font = ( 'TkDefaultFont' , '30' , 'bold'  ) , fill = 'white' )
 
 
 def positionnerPions() :
@@ -317,6 +475,7 @@ def creerGUI() :
 
 
 def initialiserJeu() :
+	'''
 	print( posInitPionsNoirs )
 	for unePosition in posInitPionsNoirs :
 		posPionsNoirs.append( [] )
@@ -330,6 +489,11 @@ def initialiserJeu() :
 		posPionsBlancs[ -1 ].append( unePosition[ 0 ] )
 		posPionsBlancs[ -1 ].append( unePosition[ 1 ] )
 	print( posPionsBlancs )
+	'''
+	
+	for couleur in posInitPions.keys() :
+		for pos in posInitPions[ couleur ] :
+			posPions[ couleur ].append( list( pos ) )
 	
 
 def deplacerPion( couleur , pion , direction ) :
@@ -337,32 +501,36 @@ def deplacerPion( couleur , pion , direction ) :
 	ind = pions.index( pion )
 	print( 'Pion :' , ind )
 	
+	'''
 	if couleur == 'noir' :
 		positions = posPionsNoirs
 		idPion = pionsNoirs[ ind ]
 	else :
 		positions = posPionsBlancs
 		idPion = pionsBlancs[ ind ]
+	'''
+	
+	idPion = pionsGUI[ couleur ][ ind ]
 		
 	if direction == NORD :
 		plateau.move( idPion , 0 , -1 * ( D + 1 ) )
-		positions[ ind ][ 0 ] = positions[ ind ][ 0 ] - 1
+		posPions[ couleur ][ ind ][ 0 ] = posPions[ couleur ][ ind ][ 0 ] - 1
 		
 	elif direction == EST :
 		plateau.move( idPion , D + 1 , 0 )
-		positions[ ind ][ 1 ] = positions[ ind ][ 1 ] + 1
+		posPions[ couleur ][ ind ][ 1 ] = posPions[ couleur ][ ind ][ 1 ] + 1
 		
 	elif direction == SUD :
 		plateau.move( idPion , 0 , D + 1 )
-		positions[ ind ][ 0 ] = positions[ ind ][ 0 ] + 1
+		posPions[ couleur ][ ind ][ 0 ] = posPions[ couleur ][ ind ][ 0 ] + 1
 		
 	elif direction == OUEST :
 		plateau.move( idPion , -1 * ( D + 1 ) , 0 )
-		positions[ ind ][ 1 ] = positions[ ind ][ 1 ] - 1
+		posPions[ couleur ][ ind ][ 1 ] = posPions[ couleur ][ ind ][ 1 ] - 1
 	
 	
-	ligne = positions[ ind ][ 0 ]
-	colonne = positions[ ind ][ 1 ]
+	ligne = posPions[ couleur ][ ind ][ 0 ]
+	colonne = posPions[ couleur ][ ind ][ 1 ]
 	
 	if couleur == 'noir' and jungle[ ligne - 1 ][ colonne - 1 ] == TANIERE_BLANC :
 		return True
@@ -385,6 +553,7 @@ def passerAuTourSuivant() :
 	
 	
 def getOccupant( ligne , colonne ) :
+	'''
 	for ind in range( len( posPionsNoirs ) ) :
 		if posPionsNoirs[ ind ] != None :
 			if posPionsNoirs[ ind ][ 0 ] == ligne and posPionsNoirs[ ind ][ 1 ] == colonne :
@@ -394,10 +563,46 @@ def getOccupant( ligne , colonne ) :
 		if posPionsBlancs[ ind ] != None :
 			if posPionsBlancs[ ind ][ 0 ] == ligne and posPionsBlancs[ ind ][ 1 ] == colonne :
 				return ( 'blanc' , pions[ ind ] )
+	'''
 	
-	return None
-	
+	try :
+		ind = posPions[ 'noir' ].index( ( ligne , colonne ) )
+		return ( 'noir' , pions[ ind ] )
+		
+	except :
+		
+		try :
+			ind = posPions[ 'blanc' ].index( ( ligne , colonne ) )
+			return ( 'blanc' , pions[ ind ] )
+			
+		except :
+			
+			return None
 
+
+def estOccupee( ligne , colonne ) :
+	for couleur in posPions.keys() :
+		for pos in posPions[ couleur ] :
+			if pos[ 0 ] == ligne and pos[ 1 ] == colonne :
+				return True
+	return False
+		
+
+# À compléter pour prendre en compte tous les cas possibles
+def peutCapturer( attaquant , cible ) :
+	
+	if attaquant == 'rat' and cible == 'éléphant' :
+		return True
+		
+	else : 
+		indAttaquant = pions.index( attaquant )
+		indCible = pions.index( cible )
+		
+		if indAttaquant >= indCible :
+			return True
+	
+	return False
+	
 
 def activerDirectionsPossibles( directions ) :
 	if NORD in directions :
@@ -420,6 +625,8 @@ def activerDirectionsPossibles( directions ) :
 	else :
 		btnOuest[ 'state' ] = 'disabled'
 	
+
+				
 
 
 if __name__ == '__main__' :
