@@ -63,6 +63,29 @@ posInitPions = {
 	'blanc' : ( ( 7 , 7 ) , ( 8 , 2 ) , ( 8 , 6 ) , ( 7 , 3 ) , ( 7 , 5 ) , ( 9 , 1 ) , ( 9 , 7 ) , ( 7 , 1 ) )
 }
 
+pionsEnJeu = {
+	'noir' : {
+			'rat' : ( 'force' = 1 , 'position' : [ 3 , 1 ] ) ,
+			'chat' : ( 'force' = 2 , 'position' : [ 2 , 6 ] ) ,
+			'chien' : ( 'force' = 3 , 'position' : [ 2 , 2 ] ) ,
+			'loup' : ( 'force' = 4 , 'position' : [ 3 , 5 ] ) ,
+			'panthère' : ( 'force' = 5 , 'position' : [ 3 , 3 ] ) ,
+			'tigre' : ( 'force' = 6 , 'position' : [ 1 , 7 ] ) ,
+			'lion' : ( 'force' = 7 , 'position' : [ 1 , 1 ] ) ,
+			'éléphant' : ( 'force' = 8 , 'position' : [ 3 , 7 ] )
+		} ,
+		
+	'blanc' : {
+			'rat' : ( 'force' = 1 , 'position' : [ 7 , 7 ] ) ,
+			'chat' : ( 'force' = 2 , 'position' : [ 8 , 2 ] ) ,
+			'chien' : ( 'force' = 3 , 'position' : [ 8 , 6 ] ) ,
+			'loup' : ( 'force' = 4 , 'position' : [ 7 , 3 ] ) ,
+			'panthère' : ( 'force' = 5 , 'position' : [ 7 , 5 ] ) ,
+			'tigre' : ( 'force' = 6 , 'position' : [ 9 , 1 ] ) ,
+			'lion' : ( 'force' = 7 , 'position' : [ 9 , 7 ] ) ,
+			'éléphant' : ( 'force' = 8 , 'position' : [ 7 , 1 ] )
+		}
+}
 
 # Position des pions noirs
 
@@ -626,6 +649,44 @@ def activerDirectionsPossibles( directions ) :
 		btnOuest[ 'state' ] = 'disabled'
 	
 
+def estDansPiege( couleur , pion ) :
+	pos = getP
+	
+	
+
+
+def estBloque( couleur , pion ) :
+	pass
+	
+	
+def estDelivre( couleur , pion ) :
+	pass
+	
+	
+def getPosition( couleur , pion ) :
+	ind = pions.index( pion )
+	if posPions[ couleur ][ ind ] != None :
+		ligne = posPions[ couleur ][ ind ][ 0 ]
+		colonne = posPions[ couleur ][ ind ][ 1 ]
+		return ( ligne , colonne )
+		
+	return None
+	
+	
+def estDansEau( couleur ) :
+	pos = getPosition( couleur , 'rat' )
+	if pos != None :
+		if jungle[ pos[ 0 ] - 1 ][ pos[ 1 ] - 1 ] == EAU :
+			return True
+	
+	return False
+	
+	
+def getAdversaire( couleur ) :
+	if couleur == 'noir' :
+		return 'blanc'
+	else :
+		return 'noir'
 				
 
 
