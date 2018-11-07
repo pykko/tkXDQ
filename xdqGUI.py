@@ -49,20 +49,22 @@ jungle = (
 
 # Liste des types de pion (la force d'un pion correspond à l'indice de ce pion  + 1
 # 		exemple : Le loup se trouve à l'indice 3. Sa force est donc de 3 + 1 c.à.d. 4)
-pions = ( 'rat' , 'chat' , 'chien' , 'loup' , 'panthère' , 'tigre' , 'lion' , 'éléphant'  )
+pions = ( 'rat' , 'chat' , 'loup' , 'chien' , 'panthère' , 'tigre' , 'lion' , 'éléphant'  )
 
 # Position initiale des pions noirs (tuple de tuples)
-posInitPionsNoirs = ( ( 3 , 1 ) , ( 2 , 6 ) , ( 2 , 2 ) , ( 3 , 5 ) , ( 3 , 3 ) , ( 1 , 7 ) , ( 1 , 1 ) , ( 3 , 7 ) )
+posInitPionsNoirs = ( ( 3 , 1 ) , ( 2 , 6 ) , ( 3 , 5 ) , ( 2 , 2 ) , ( 3 , 3 ) , ( 1 , 7 ) , ( 1 , 1 ) , ( 3 , 7 ) )
 
 # Position initiale des pions blancs (tuple de tuples)
-posInitPionsBlancs = ( ( 7 , 7 ) , ( 8 , 2 ) , ( 8 , 6 ) , ( 7 , 3 ) , ( 7 , 5 ) , ( 9 , 1 ) , ( 9 , 7 ) , ( 7 , 1 ) )
+posInitPionsBlancs = ( ( 7 , 7 ) , ( 8 , 2 ) , ( 7 , 3 ) , ( 8 , 6 ) , ( 7 , 5 ) , ( 9 , 1 ) , ( 9 , 7 ) , ( 7 , 1 ) )
 
 
 posInitPions = {
-	'noir' : ( ( 3 , 1 ) , ( 2 , 6 ) , ( 2 , 2 ) , ( 3 , 5 ) , ( 3 , 3 ) , ( 1 , 7 ) , ( 1 , 1 ) , ( 3 , 7 ) ) ,
-	'blanc' : ( ( 7 , 7 ) , ( 8 , 2 ) , ( 8 , 6 ) , ( 7 , 3 ) , ( 7 , 5 ) , ( 9 , 1 ) , ( 9 , 7 ) , ( 7 , 1 ) )
+	'noir' : ( ( 3 , 1 ) , ( 2 , 6 ) , ( 3 , 5 ) , ( 2 , 2 ) , ( 3 , 3 ) , ( 1 , 7 ) , ( 1 , 1 ) , ( 3 , 7 ) ) ,
+	'blanc' : ( ( 7 , 7 ) , ( 8 , 2 ) , ( 7 , 3 ) , ( 8 , 6 ) , ( 7 , 5 ) , ( 9 , 1 ) , ( 9 , 7 ) , ( 7 , 1 ) )
 }
 
+# Pas nécessaire pour l'instant
+'''
 pionsEnJeu = {
 	'noir' : {
 			'rat' : ( 'force' = 1 , 'position' : [ 3 , 1 ] ) ,
@@ -86,6 +88,7 @@ pionsEnJeu = {
 			'éléphant' : ( 'force' = 8 , 'position' : [ 7 , 1 ] )
 		}
 }
+'''
 
 # Position des pions noirs
 
@@ -175,8 +178,26 @@ def getCaseOuest( ligne , colonne ) :
 		return ( ligne , colonne - 1 )
 	else :
 		return None
-
 		
+		
+def getCasesVoisines( ligne , colonne ) :
+	cases = []
+	
+	if ligne > 1 :
+		cases.append( ( ligne - 1 , colonne ) )
+		
+	if colonne < NB_COLONNES :
+		cases.append( ( ligne , colonne + 1 ) )
+		
+	if ligne < NB_LIGNES :
+		cases.append( ( ligne + 1 , colonne ) )
+		
+	if colonne > 1 :
+		cases.append( ( ligne , colonne - 1 ) )
+	
+	return cases
+	
+	
 def estSurBord( ligne , colonne ) :
 	if ligne == 1 or ligne == NB_LIGNES or colonne == 1 or colonne == NB_COLONNES :
 		return True
@@ -650,17 +671,16 @@ def activerDirectionsPossibles( directions ) :
 	
 
 def estDansPiege( couleur , pion ) :
-	pos = getP
+	( ligne , colonne ) = getPosition( couleur , pion )
 	
+	if couleur == 'blanc' and estPiege( ligne , colonne , 'noir' ) :
+		return True
 	
-
-
-def estBloque( couleur , pion ) :
-	pass
+	if couleur == 'noir' and estPiege( ligne , colonne , 'blanc' ) :
+		return True
+		
+	return False
 	
-	
-def estDelivre( couleur , pion ) :
-	pass
 	
 	
 def getPosition( couleur , pion ) :
